@@ -1,12 +1,33 @@
 from uuid import uuid8
+import json
+from logging import info, error
+from pathlib import Path
 
 class DataStore:
+
   def __init__(self):
-    self.data = dict()
+    filePath = Path.cwd() / "data.json"
+    jsonData = []
+    try:
+      info("opening file at", filePath)
+      with open(filePath, 'r') as file:
+        jsonData = json.load(file)
+        file.close()
+    except:
+      info('failed to find file, creating')
+      try:
+        with open('data.json', 'w') as file:
+          file.write("{}")
+          file.close()
+          
+      except Exception as e:
+        error("Failed to create file", e)
+    self.data = dict(jsonData)
 
   def create(self, item):
     key = str(uuid8())
     self.data.update({key: item})
+    self.updateFile()
     return key
 
   def get(self, key):
@@ -24,8 +45,18 @@ class DataStore:
     old = self.get(key)
     if(old):
       self.data.update({key: item})
+      self.updateFile()
     return old
 
   def delete(self, key):
-    return self.data.pop(key, None)
+    item = self.data.pop(key, None)
+    self.updateFile()
+    return item
 
+  def updateFile(self):
+    try:
+      with open('data.json', 'w') as file:
+        file.write(json.dumps(self.data, indent=2))
+        file.close()
+    except:
+      error("Failed to write to file")
