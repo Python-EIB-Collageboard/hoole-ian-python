@@ -12,13 +12,11 @@ class DataStore:
       info("opening file at", filePath)
       with open(filePath, 'r') as file:
         jsonData = json.load(file)
-        file.close()
     except:
       info('failed to find file, creating')
       try:
         with open('data.json', 'w') as file:
           file.write("{}")
-          file.close()
           
       except Exception as e:
         error("Failed to create file", e)
@@ -57,6 +55,5 @@ class DataStore:
     try:
       with open('data.json', 'w') as file:
         file.write(json.dumps(self.data, indent=2))
-        file.close()
     except:
       error("Failed to write to file")
